@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return {"hour": hour, "minute": minute};
   }
 
-  Event buildEvent(title,hours, minutes, selectedDate) {
+  Event buildEvent(title, hours, minutes, selectedDate) {
     return Event(
         title: title,
         startDate: selectedDate,
@@ -53,6 +53,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final appProvider = Provider.of<AppProvider>(context, listen: true);
     int addedPlayers = appProvider.addedPlayers.length;
+    bool playerNumberValidation = appProvider.addedPlayers.length >=
+            appProvider.selectedSportData!.minPlayers &&
+        appProvider.addedPlayers.length <=
+            appProvider.selectedSportData!.maxPlayers;
+
+    Map<String, dynamic> timeDuration =
+        duration(fromTime: fromTime, toTime: toTime);
     return Scaffold(
       appBar: AppBar(
         title: InkWell(
@@ -62,9 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: Text('${appProvider.selectedSportData?.name}')),
         leading: const Icon(Icons.menu),
-        actions: [IconButton(onPressed: () {
-          Navigator.pushNamed(context, '/history');
-        }, icon: const Icon(Icons.history))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/history');
+              },
+              icon: const Icon(Icons.history))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -82,22 +93,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         ground['name'],
-                        style: const TextStyle(fontSize: 18, color: Colors.blue),
+                        style:
+                            const TextStyle(fontSize: 18, color: Colors.blue),
                       ),
                       Text(
                         ground['address'],
-                        style: const TextStyle(fontSize: 12, color: Colors.blueGrey),
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.blueGrey),
                       ),
                     ],
                   ),
                 );
               }).toList(),
               onChanged: (value) {
-                
                 setState(() {
                   selectedGround = value;
                 });
-                
               },
             ),
             const SizedBox(
@@ -206,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(color: Colors.blue, fontSize: 16),
                 ),
                 Text(
-                  '${duration(fromTime: fromTime, toTime: toTime)['hour']} Hours : ${duration(fromTime: fromTime, toTime: toTime)['minute']} Minutes',
+                  '${timeDuration['hour']} Hours : ${timeDuration['minute']} Minutes',
                   style: const TextStyle(fontSize: 18),
                 ),
               ],
@@ -233,7 +244,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(fontSize: 20, color: Colors.blue),
                 ),
                 Text(
-                    '$addedPlayers/${appProvider.selectedSportData!.maxPlayers}')
+                  '$addedPlayers/${appProvider.selectedSportData!.maxPlayers}',
+                  style: TextStyle(
+                      color:
+                          playerNumberValidation ? Colors.green : Colors.red),
+                )
               ],
             ),
             const SizedBox(
@@ -282,34 +297,27 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: (appProvider.addedPlayers.length >=
-                      appProvider.selectedSportData!.minPlayers &&
-                  appProvider.addedPlayers.length <=
-                      appProvider.selectedSportData!.maxPlayers)
-              ? Colors.blue
-              : Colors.grey,
+          backgroundColor: (playerNumberValidation) ? Colors.blue : Colors.grey,
           onPressed: () {
-            
-            if (appProvider.addedPlayers.length >=
-                    appProvider.selectedSportData!.minPlayers &&
-                appProvider.addedPlayers.length <=
-                    appProvider.selectedSportData!.maxPlayers) {
-              int hours = duration(fromTime: fromTime, toTime: toTime)['hour'];
-              int minutes =
-                  duration(fromTime: fromTime, toTime: toTime)['minute'];
+            if (playerNumberValidation) {
+              int hours = timeDuration['hour'];
+              int minutes = timeDuration['minute'];
               GameDetails gameDetails = GameDetails(
-                  ground: selectedGround!['name']??'Unknown',
-                  address: selectedGround!['address']??'Unknowm',
+                  ground: selectedGround!['name'] ?? 'Unknown',
+                  address: selectedGround!['address'] ?? 'Unknowm',
                   players: appProvider.addedPlayers,
                   sport: appProvider.selectedSportData!.name,
                   date: selectedDate,
                   playerCount: appProvider.addedPlayers.length,
                   durationHour: hours,
                   durationMinute: minutes);
-                  // print(gameDetails.ground);
+              // print(gameDetails.ground);
               appProvider.addGameDeatils(gameDetails);
-              Add2Calendar.addEvent2Cal(
-                  buildEvent(appProvider.selectedSportData!.name,hours, minutes, selectedDate));
+              Add2Calendar.addEvent2Cal(buildEvent(
+                  appProvider.selectedSportData!.name,
+                  hours,
+                  minutes,
+                  selectedDate));
             }
           },
           label: SizedBox(

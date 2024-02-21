@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 Widget gameHistoryCard({gameHistoryList}) {
   return ListView.builder(
+    physics: BouncingScrollPhysics(),
+    shrinkWrap: true,
       itemCount: gameHistoryList.length,
       itemBuilder: (context, index) {
         final game = gameHistoryList[index];
         return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(12)),
@@ -38,7 +41,7 @@ Widget gameHistoryCard({gameHistoryList}) {
             ),
             Text(
               'Duration: ${game.durationHour} H : ${game.durationMinute} M',
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16,color: Colors.blue),
             ),
             Text(
               'Players Count: ${game.playerCount}',
